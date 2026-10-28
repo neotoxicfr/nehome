@@ -1,0 +1,9 @@
+.git
+bin
+release
+data
+deploy
+.audit
+/deploy/
+/CLAUDE.md
+/.audit/

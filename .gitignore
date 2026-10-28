@@ -1,0 +1,9 @@
+data/
+/nehome
+bin/
+release/
+
+# Personal deployment and assistant notes, kept out of the public repository
+/deploy/
+/CLAUDE.md
+/.audit/

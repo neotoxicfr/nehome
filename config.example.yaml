@@ -1,0 +1,41 @@
+# nehome configuration. Infrastructure only: what is shown on each tile is chosen on /settings.
+# This file is re-read while running (every 2 s); links can also be edited from /settings
+# when the file is writable by nehome (keep it in the data volume: NEHOME_CONFIG=/data/config.yaml).
+listen: ":8080"
+data_dir: /data
+secrets_dir: /run/secrets   # Docker secrets; keys typed in the UI go to data_dir/secrets
+
+auth:
+  header: Remote-User                # set by your auth proxy (Authelia, Authentik, oauth2-proxy…)
+  trusted_proxies: [192.0.2.10/32]   # address of the reverse proxy; the header is ignored from anywhere else
+  admins: [alice]                    # who may add, edit or delete links from the UI (empty: any signed-in user)
+  # disabled: true                   # local testing only: no authentication at all
+
+tiles:
+  - id: host
+    type: system
+    title: Server
+    section: System
+    options: {proc: /host/proc, sys: /host/sys, disks: "/,/data"}
+
+  - id: sonarr
+    type: sonarr
+    title: Sonarr
+    section: Media
+    href: https://sonarr.example.org/
+    url: http://sonarr:8989
+    secrets: {key: sonarr_key}
+
+  - id: qbittorrent
+    type: qbittorrent
+    title: qBittorrent
+    section: Downloads
+    href: https://qbittorrent.example.org/
+    url: http://qbittorrent:8080
+    secrets: {user: qbit_user, pass: qbit_pass}
+
+  - id: weather
+    type: weather
+    title: Paris
+    section: Weather
+    options: {lat: "48.85", lon: "2.35", timezone: Europe/Paris}

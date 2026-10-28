@@ -1,0 +1,57 @@
+{{define "head"}}<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>{{if .Title}}{{.Title}} · {{end}}{{.Brand}}</title>
+<link rel="icon" href="{{with .Favicon}}{{.}}{{else}}data:,{{end}}">
+<link rel="stylesheet" href="/static/app.css?v={{.AssetV}}">
+<link rel="stylesheet" href="/theme.css?v={{.ThemeV}}">
+<script src="/static/app.js?v={{.AssetV}}" defer></script>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="/">{{with .Favicon}}<img class="icon" src="{{.}}" alt="" width="20" height="20">{{end}}{{.Brand}}</a>
+  <nav>
+    <a href="/"{{if eq .Nav "home"}} aria-current="page"{{end}}>Accueil</a>
+    <a href="/settings"{{if eq .Nav "settings"}} aria-current="page"{{end}}>Réglages</a>
+  </nav>
+  {{if eq .Nav "home"}}<span class="live" id="live" title="Connexion temps réel">hors ligne</span>{{end}}
+</header>
+<main>
+{{with .Notice}}<p class="notice" role="alert">{{.}}</p>{{end}}
+{{end}}
+
+{{define "foot"}}
+</main>
+</body>
+</html>
+{{end}}
+
+{{define "index"}}{{template "head" .}}
+<div class="board{{if eq .Layout "auto"}} auto{{end}}">
+{{range .Sections}}
+<section class="section n{{.N}}">
+  <h2>{{.Name}}</h2>
+  <div class="grid">{{range .Tiles}}{{.}}{{end}}</div>
+</section>
+{{else}}
+<p class="empty">Aucune tuile : ajoute-les dans config.yaml, ou réaffiche-les dans les réglages.</p>
+{{end}}
+</div>
+<dialog id="detail" aria-labelledby="detail-title">
+  <div class="dlg">
+    <header><h2 id="detail-title"></h2><button type="button" class="close" aria-label="Fermer">✕</button></header>
+    <div class="dlg-body"></div>
+  </div>
+</dialog>
+{{template "foot"}}{{end}}
+
+{{define "detailpage"}}{{template "head" .}}
+<article class="detail-page">
+  <h1>{{.V.Title}}</h1>
+  {{template "detail" .V}}
+  <p><a href="/">← Retour</a></p>
+</article>
+{{template "foot"}}{{end}}

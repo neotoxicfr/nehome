@@ -1,0 +1,216 @@
+{{define "settings"}}{{template "head" .}}
+<div class="st">
+<header class="st-top">
+  <h1>Réglages</h1>
+  <nav class="st-nav" aria-label="Sections des réglages">
+    <a href="#apparence">Apparence</a><a href="#tuiles">Services</a>
+  </nav>
+</header>
+{{with .Err}}<p class="notice" role="alert">{{.}}</p>{{end}}
+{{if eq .Saved "suppr"}}<p class="ok-msg" role="status">Liaison supprimée.</p>{{end}}
+{{$saved := .Saved}}{{$w := .Writable}}
+
+<section class="st-card" id="apparence">
+  <h2 class="st-h">Apparence</h2>
+  <div class="st-cols">
+    {{with .Identity}}{{if $w}}
+    <form method="post" action="/identity" id="identity" class="st-block">
+      <h3>Identité et thème</h3>
+      <label class="fld"><span class="fl">Nom</span><input name="name" value="{{.Name}}" placeholder="nehome" maxlength="40"></label>
+      <div class="fld"><span class="fl">Mode</span>
+        <div class="modes">{{$cur := .Theme}}{{range .Themes}}
+          <label class="mode mode-{{.Name}}"><input type="radio" name="theme" value="{{.Name}}" data-bg="{{.Bg}}" data-surface="{{.Surface}}" data-text="{{.Text}}"{{if eq .Name $cur}} checked{{end}}><span class="mode-prev" aria-hidden="true"><i></i><i></i></span><span>{{.Label}}</span></label>{{end}}
+        </div>
+      </div>
+      <div class="fld"><span class="fl">Couleur principale</span>
+        <div class="swatch-row">{{$acc := .AccentName}}{{range .Accents}}
+          <label class="swatch sw-{{.Name}}" title="{{.Label}}"><input type="radio" name="accent" value="{{.Name}}" data-hex="{{.Hex}}"{{if eq .Name $acc}} checked{{end}}><span class="visually-hidden">{{.Label}}</span></label>{{end}}
+          <label class="swatch custom" title="Couleur libre"><input type="radio" name="accent" value="custom"{{if eq $acc "custom"}} checked{{end}}><input type="color" name="accent_custom" value="{{.Accent}}" aria-label="Couleur libre"></label>
+        </div>
+      </div>
+      <div class="st-foot"><button type="submit" class="btn nojs">Appliquer</button><span class="saved" role="status" id="id-status">{{if eq $saved "identity"}}Enregistré{{end}}</span></div>
+    </form>
+    <figure class="preview" aria-label="Aperçu du thème">
+      <div class="preview-frame">
+        <div class="pv-head"><span class="pv-dot"></span><b class="pv-name">{{if .Name}}{{.Name}}{{else}}nehome{{end}}</b><span class="pv-chip">en direct</span></div>
+        <div class="pv-cards">
+          <div class="pv-card"><span class="fl">Réception</span><b>42,7 Mo/s</b><i class="pv-bar"></i></div>
+          <div class="pv-card"><span class="fl">Stockage</span><b>86 %</b><i class="pv-bar pv-warn"></i></div>
+        </div>
+        <span class="pv-link">Voir le détail →</span>
+      </div>
+      <figcaption class="help">Aperçu : la page entière change aussi, et tout s'enregistre seul.</figcaption>
+    </figure>
+    <form method="post" action="/identity/favicon" enctype="multipart/form-data" id="favicon-form" class="st-block">
+      <h3>Favicon</h3>
+      <div class="fav">
+        <img class="fav-preview" src="{{if .FaviconURL}}{{.FaviconURL}}{{else}}data:,{{end}}" alt="" width="40" height="40"{{if not .FaviconURL}} hidden{{end}}>
+        <label class="file"><input type="file" name="favicon" accept=".png,.ico,.webp,image/png,image/x-icon,image/vnd.microsoft.icon,image/webp"><span class="btn btn-ghost">Choisir un fichier</span></label>
+        {{if .FaviconURL}}<label class="check"><input type="checkbox" name="remove" value="1"> Retirer</label>{{end}}
+      </div>
+      <p class="help">PNG, ICO ou WebP, 512 Ko au plus.</p>
+      <div class="st-foot"><button type="submit" class="btn nojs">Envoyer</button><span class="saved" role="status" id="fav-status"></span></div>
+    </form>
+    {{end}}{{end}}
+    <form method="post" action="/page" id="page" class="st-block">
+      <h3>Disposition de l'accueil</h3>
+      <div class="seg">
+        <label><input type="radio" name="layout" value=""{{if ne .Layout "auto"}} checked{{end}}><span><b>Grille</b>Rangées alignées, dans l'ordre des positions</span></label>
+        <label><input type="radio" name="layout" value="auto"{{if eq .Layout "auto"}} checked{{end}}><span><b>Colonnes équilibrées</b>Moins de vides ; une tuile peut changer de colonne</span></label>
+      </div>
+      <div class="st-foot"><button type="submit" class="btn">Appliquer</button>{{if eq $saved "page"}}<span class="saved" role="status">Enregistré</span>{{end}}</div>
+    </form>
+  </div>
+</section>
+
+{{if and $w (or .Add .ShowGallery)}}
+<section class="st-card" id="add">
+  <h2 class="st-h">Ajouter un service</h2>
+  {{with .Add}}
+    <div class="add-head"><h3>{{$.AddTitle}} <code>{{.Type}}</code></h3><a class="btn btn-ghost" href="/settings?gallery=1#add">Changer de service</a></div>
+    {{template "linkform" .}}
+  {{else}}{{template "gallery" .Gallery}}{{end}}
+</section>
+{{end}}
+<datalist id="sections">{{range .Sections}}<option value="{{.}}">{{end}}</datalist>
+
+<section id="tuiles">
+<div class="svc-bar">
+  <h2 class="st-h">Services</h2>
+  <input type="search" id="tile-q" class="tile-q" placeholder="Rechercher un service présent…" aria-label="Rechercher un service présent" hidden>
+  {{if $w}}<a class="btn" id="add-btn" href="/settings?gallery=1#add">Ajouter un service</a>{{end}}
+</div>
+<p class="help">Chaque carte montre la connexion au service (adresse, clés). « Affichage et actions » règle ce que la tuile montre, son ordre et ses boutons.</p>
+<div class="set-grid">
+{{range .Tiles}}{{$t := .ID}}
+<article class="tcard" id="s-{{.ID}}" data-q="{{.ID}} {{.Title}} {{.Section}} {{.Link.Type}}">
+  <header class="tcard-h">
+    {{with .Icon}}<img src="{{.}}" alt="" width="22" height="22" loading="lazy">{{end}}
+    <h3>{{.Title}}<small>{{.Section}}{{if .Hidden}} · masquée{{end}}</small></h3>
+    <button type="button" class="btn btn-ghost" data-display="{{.ID}}" data-title="{{.Title}}">Affichage et actions</button>
+  </header>
+  {{if $w}}
+    {{template "linkform" .Link}}
+    <form method="post" action="/tiles/{{.ID}}/delete" class="del">
+      <label class="check"><input type="checkbox" name="confirm" value="1"> Confirmer</label>
+      <button type="submit" class="btn btn-ghost btn-del">Supprimer la liaison</button>
+    </form>
+  {{else}}<p class="help">Type {{.Link.Type}}</p>{{end}}
+  <template class="display-tpl">{{template "display" (displayArg . $saved)}}</template>
+  <details class="nojs-only"><summary>Affichage et actions</summary>{{template "display" (displayArg . $saved)}}</details>
+</article>
+{{end}}
+</div>
+</section>
+</div>
+{{if $w}}
+<dialog id="svc-dlg" aria-labelledby="svc-dlg-title">
+  <div class="dlg">
+    <header><h2 id="svc-dlg-title"></h2><button type="button" class="close" aria-label="Fermer">✕</button></header>
+    <div class="dlg-body"></div>
+  </div>
+</dialog>
+<template id="gallery-tpl">{{template "gallery" .Gallery}}</template>
+{{end}}
+{{template "foot"}}{{end}}
+
+{{define "display"}}{{$t := .T.ID}}{{$saved := .Saved}}{{with .T}}
+<form method="post" action="/settings/{{.ID}}" class="display-form">
+  <div class="st-grid st-grid-3">
+    <label class="fld"><span class="fl">Position</span><input type="number" name="pos" value="{{.Pos}}" min="1" step="1" inputmode="numeric"></label>
+    <label class="fld"><span class="fl">Icône</span><input name="icon" value="{{.IconForced}}" placeholder="{{if .IconName}}{{.IconName}}{{else}}aucune{{end}}"></label>
+    <div class="fld-checks">
+      <label class="check"><input type="checkbox" name="visible" value="1"{{if not .Hidden}} checked{{end}}> Tuile affichée</label>
+      <label class="check"><input type="checkbox" name="showicon" value="1"{{if not .NoIcon}} checked{{end}}> Icône sur l'accueil</label>
+    </div>
+  </div>
+  {{if .Fields}}
+  <table class="tbl-set">
+    <thead><tr><th>Champ</th><th>Affichage</th><th>Ordre</th></tr></thead>
+    <tbody>
+    {{range .Fields}}{{$p := .Placement}}
+      <tr>
+        <td><label for="f-{{$t}}-{{.ID}}">{{.Label}}</label></td>
+        <td><select id="f-{{$t}}-{{.ID}}" name="f.{{.ID}}">{{range placements}}<option value="{{.}}"{{if eq . $p}} selected{{end}}>{{placementLabel .}}</option>{{end}}</select></td>
+        <td><input type="number" name="o.{{.ID}}" value="{{.Order}}" step="1" inputmode="numeric" aria-label="Ordre de {{.Label}}"></td>
+      </tr>
+    {{end}}
+    </tbody>
+  </table>
+  {{else}}<p class="help">Cette tuile n'a pas démarré (voir son erreur sur l'accueil).</p>{{end}}
+  {{if .Actions}}
+  <table class="tbl-set">
+    <thead><tr><th>Action</th><th colspan="2">Affichage</th></tr></thead>
+    <tbody>
+    {{range .Actions}}{{$p := .Placement}}
+      <tr><td><label for="a-{{$t}}-{{.ID}}">{{.Label}}</label></td>
+      <td colspan="2"><select id="a-{{$t}}-{{.ID}}" name="a.{{.ID}}">{{range placements}}<option value="{{.}}"{{if eq . $p}} selected{{end}}>{{placementLabel .}}</option>{{end}}</select></td></tr>
+    {{end}}
+    </tbody>
+  </table>
+  {{end}}
+  <div class="st-foot"><button type="submit" class="btn">Enregistrer</button>{{if eq $saved .ID}}<span class="saved" role="status">Enregistré</span>{{end}}</div>
+</form>
+{{end}}{{end}}
+
+{{define "gallery"}}
+<input type="search" class="svc-q" placeholder="Rechercher un service à ajouter…" aria-label="Rechercher un service à ajouter">
+{{range .}}
+<div class="svc-cat">
+  <h3>{{.Label}}</h3>
+  <div class="svc-grid">{{range .Items}}
+    <a class="svc" href="/settings?add={{.Type}}#add" data-type="{{.Type}}" data-title="{{.Title}}" title="{{.Desc}}" data-q="{{.Type}} {{.Title}} {{.Desc}}">
+      {{if .Icon}}<img src="{{.Icon}}" alt="" width="24" height="24" loading="lazy">{{else}}<span class="svc-ph" aria-hidden="true">{{slice .Title 0 1}}</span>{{end}}
+      <span>{{.Title}}</span></a>{{end}}
+  </div>
+</div>
+{{end}}
+{{end}}
+
+{{define "linkform"}}{{$f := .}}
+<form method="post" action="/tiles" class="link-form">
+  {{if .New}}<input type="hidden" name="new" value="1"><input type="hidden" name="type" value="{{.Type}}">{{end}}
+  {{if .New}}{{with .Desc}}<p class="help">{{.}}</p>{{end}}{{end}}
+  <div class="st-grid">
+    {{if .New}}<label class="fld"><span class="fl">Identifiant</span><input name="id" required pattern="[a-z0-9-]{1,40}" value="{{.Cfg.ID}}"></label>
+    {{else}}<input type="hidden" name="id" value="{{.Cfg.ID}}">
+    <label class="fld"><span class="fl">Type</span><select name="type">{{range typesList}}<option value="{{.}}"{{if eq . $f.Type}} selected{{end}}>{{.}}</option>{{end}}</select></label>{{end}}
+    <label class="fld"><span class="fl">Titre</span><input name="title" value="{{.Cfg.Title}}"></label>
+    <label class="fld"><span class="fl">Section</span><input name="section" value="{{.Cfg.Section}}" list="sections"></label>
+    <label class="fld"><span class="fl">Adresse de l'API</span><input name="url" type="url" value="{{.Cfg.URL}}" placeholder="http://service:port"></label>
+    <label class="fld"><span class="fl">Lien au clic sur le titre</span><input name="href" type="url" value="{{.Cfg.Href}}" placeholder="https://…"></label>
+    {{range .Options}}<label class="fld"><span class="fl" title="{{.Key}}">{{optLabel .Key}}</span><input name="opt.{{.Key}}" value="{{.Value}}"></label>{{end}}
+  </div>
+  <label class="check"><input type="checkbox" name="insecure_tls" value="1"{{if .Cfg.InsecureTLS}} checked{{end}}> Accepter un certificat auto-signé</label>
+  {{if .Roles}}<fieldset class="keys"><legend>Clés et identifiants</legend>
+    {{range .Roles}}{{$r := .}}
+    <div class="role">
+      <span class="role-name">{{.Label}}{{if ne .Label .Role}}<small>{{.Role}}</small>{{end}}</span>
+      {{if $f.Secrets}}<select name="sec.{{.Role}}.name" aria-label="Secret existant pour {{.Role}}">
+        <option value="">— aucun —</option>
+        {{range $f.Secrets}}<option value="{{.Name}}"{{if eq .Name $r.Name}} selected{{end}}>{{.Name}} ({{.Source}})</option>{{end}}
+      </select>{{end}}
+      <input type="password" name="sec.{{.Role}}.value" autocomplete="new-password" placeholder="{{if .Name}}nouvelle valeur (facultatif){{else}}à saisir{{end}}" aria-label="Valeur pour {{.Role}}">
+    </div>
+    {{end}}
+    <p class="help">Enregistrées dans data/secrets, jamais réaffichées. Laisser vide pour garder la clé actuelle ; à ressaisir si l'adresse change d'hôte.</p>
+  </fieldset>{{end}}
+  <details class="more"><summary>Avancé</summary>
+    <div class="role role-new keys-extra">
+      <span class="role-name">Autre clé</span>
+      <select name="xrole" aria-label="Type de clé à ajouter">
+        <option value="">— ajouter une clé —</option>
+        <option value="key">Clé API</option><option value="token">Jeton</option><option value="user">Identifiant</option><option value="pass">Mot de passe</option><option value="custom">Autre (nom ci-contre)</option>
+      </select>
+      <input name="xrole_custom" placeholder="nom si « Autre »" aria-label="Nom de la clé si Autre">
+      <input type="password" name="xrole_value" autocomplete="new-password" placeholder="valeur" aria-label="Valeur de la clé ajoutée">
+    </div>
+    <div class="st-grid">
+      <label class="fld"><span class="fl">Autres options</span><textarea name="extra_opts" rows="3" placeholder="clé=valeur, une par ligne">{{.ExtraOptions}}</textarea></label>
+      <label class="fld"><span class="fl">Autres secrets</span><textarea name="extra_secrets" rows="3" placeholder="rôle=nom_du_secret">{{.ExtraSecrets}}</textarea></label>
+    </div>
+    {{if .HasFields}}<p class="help">Les champs déclarés (fields) de cette tuile se modifient dans config.yaml ; ils sont conservés.</p>{{end}}
+  </details>
+  <div class="st-foot"><button type="submit" class="btn">{{if .New}}Ajouter{{else}}Enregistrer la liaison{{end}}</button></div>
+</form>
+{{end}}

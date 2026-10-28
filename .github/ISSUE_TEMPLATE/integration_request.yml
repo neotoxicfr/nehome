@@ -1,0 +1,24 @@
+name: New integration
+description: Ask for a service that nehome does not support yet.
+labels: [integration]
+body:
+  - type: input
+    id: service
+    attributes:
+      label: Service
+      placeholder: "Name and link to its API documentation"
+    validations:
+      required: true
+  - type: textarea
+    id: data
+    attributes:
+      label: What should the tile show?
+      description: The few values worth seeing at a glance, then what belongs in the detail view.
+    validations:
+      required: true
+  - type: textarea
+    id: sample
+    attributes:
+      label: Sample API responses
+      description: Real responses help most (anonymised). Before asking, check whether the `customapi` type already covers it.
+      render: json

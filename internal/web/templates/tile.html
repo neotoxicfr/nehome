@@ -1,0 +1,47 @@
+{{define "tile"}}<article class="tile" id="t-{{.ID}}" data-id="{{.ID}}" data-title="{{.Title}}" tabindex="0" aria-haspopup="dialog">
+  <header>
+    <span class="dot {{.Status}}" title="{{if .Err}}En panne{{else if .Updated.IsZero}}En attente{{else}}OK{{end}}"></span>
+    {{with .Icon}}<img class="icon" src="{{.}}" alt="" width="20" height="20" loading="lazy">{{end}}
+    {{if .Href}}<a class="name" href="{{.Href}}" target="_blank" rel="noopener">{{.Title}}</a>{{else}}<span class="name">{{.Title}}</span>{{end}}
+  </header>
+  {{if .Err}}<p class="err">{{.Err}}</p>{{end}}
+  <div class="fields">{{range .OnTile}}{{template "field" (dict_compact . true $.ID)}}{{end}}</div>
+  {{with .ActOnTile}}<div class="acts">{{range .}}{{template "action" .}}{{end}}</div>{{end}}
+  <template class="detail">{{template "detail" .}}</template>
+</article>{{end}}
+
+{{define "detail"}}
+{{if .Err}}<p class="err">{{.Err}}</p>{{end}}
+{{with .ActDetail}}<div class="acts acts-detail">{{range .}}{{template "action" .}}{{end}}</div>{{end}}
+<div class="fields full">
+  <div class="d-stats">{{range .Detail}}{{if or (eq (print .Kind) "stat") (eq (print .Kind) "meter")}}{{template "field" (dict_compact . false $.ID)}}{{end}}{{end}}</div>
+  <div class="d-lists">{{range .Detail}}{{if not (or (eq (print .Kind) "stat") (eq (print .Kind) "meter"))}}{{template "field" (dict_compact . false $.ID)}}{{end}}{{end}}</div>
+</div>
+<p class="updated">{{if .Updated.IsZero}}Pas encore de données{{else}}Mis à jour à {{.Updated.Format "15:04:05"}}{{end}}</p>
+{{end}}
+
+{{define "field"}}{{$f := .F}}{{$compact := .Compact}}
+<div class="f k-{{$f.Kind}}{{if and (eq (print $f.Kind) "table") (not $f.Rows)}} k-empty{{else if gt (len $f.Head) 3}} wide{{end}}{{if $f.Level}} lvl-{{$f.Level}}{{end}}">
+  <span class="label" title="{{$f.Label}}">{{$f.Label}}</span>
+  {{if not $f.Has}}<span class="val muted">…</span><span class="gfx"></span>
+  {{else if or (eq (print $f.Kind) "stat") (eq (print $f.Kind) "meter") (eq (print $f.Kind) "spark")}}<span class="val"><span class="main">{{$f.Text}}</span>{{if $f.Sub}} <small>{{$f.Sub}}</small>{{end}}</span>
+  <span class="gfx">{{if eq (print $f.Kind) "meter"}}<meter min="0" max="100" low="75" high="90" optimum="0" value="{{pct $f.Pct}}"></meter>{{else if eq (print $f.Kind) "spark"}}{{spark $f.Points}}{{end}}</span>
+  {{else if eq (print $f.Kind) "bars"}}<div class="bars">{{range $f.Bars}}<div class="bar{{if .Level}} lvl-{{.Level}}{{end}}"><span class="bl">{{.Label}}</span><small class="bt">{{.Text}}</small><span class="gfx"><meter min="0" max="100" low="75" high="90" optimum="0" value="{{pct .Pct}}"></meter></span></div>{{end}}</div>
+  {{else if eq (print $f.Kind) "table"}}
+    {{if not $f.Rows}}<span class="val muted">{{if $f.Text}}{{$f.Text}}{{else}}rien{{end}}</span>
+    {{else}}{{$rows := $f.Rows}}{{if $compact}}{{$rows = limit 4 $f.Rows}}{{end}}
+    <div class="tbl"><table>
+      {{if $f.Head}}<thead><tr>{{range $f.Head}}<th>{{.}}</th>{{end}}</tr></thead>{{end}}
+      <tbody>{{range $i, $r := $rows}}<tr{{if and (not $compact) (ge $i 8)}} class="extra"{{end}}>{{range $r}}<td{{if .Level}} class="lvl-{{.Level}}"{{end}}>{{.Text}}</td>{{end}}</tr>{{end}}</tbody>
+    </table></div>
+    {{if $compact}}{{with more 4 $f.Rows}}<small class="muted">+ {{.}} de plus</small>{{end}}
+    {{else}}{{with more 8 $f.Rows}}<input type="checkbox" class="more-t" id="m-{{$.TileID}}-{{$f.ID}}"><label class="more-l" for="m-{{$.TileID}}-{{$f.ID}}"><span>Afficher les {{.}} autres</span><span>Réduire</span></label>{{end}}{{end}}
+    {{end}}
+  {{end}}
+</div>{{end}}
+
+{{define "action"}}<form method="post" action="/action/{{.TileID}}/{{.ID}}" class="act"{{with .Confirm}} data-confirm="{{.}}"{{end}}>
+  {{if .Choices}}<select name="arg" aria-label="Élément pour « {{.Label}} »">{{range .Choices}}<option>{{.}}</option>{{end}}</select>{{end}}
+  {{if .Confirm}}<label class="check act-confirm"><input type="checkbox" name="confirmed" value="1"> Confirmer</label>{{end}}
+  <button type="submit">{{.Label}}</button>
+</form>{{end}}

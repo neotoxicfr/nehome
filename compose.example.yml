@@ -1,0 +1,31 @@
+# Example stack: nehome behind a reverse proxy with forward authentication.
+services:
+  nehome:
+    image: ghcr.io/neotoxicfr/nehome:latest
+    container_name: nehome
+    restart: unless-stopped
+    read_only: true
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+    environment:
+      - TZ=Europe/Paris
+      - NEHOME_CONFIG=/data/config.yaml   # editable from the UI, re-read while running
+    volumes:
+      - ./data:/data                      # config.yaml, settings, UI secrets, icon cache (owned by uid 65532)
+      - /proc:/host/proc:ro               # only for the "system" tile (host metrics)
+      - /sys:/host/sys:ro
+    secrets: [sonarr_key, qbit_user, qbit_pass]
+    networks: [proxy]
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.nehome.rule=Host(`home.example.org`)
+      - traefik.http.routers.nehome.middlewares=authelia@docker
+      - traefik.http.services.nehome.loadbalancer.server.port=8080
+
+networks:
+  proxy: {external: true}
+
+secrets:
+  sonarr_key: {file: ./secrets/sonarr_key}
+  qbit_user: {file: ./secrets/qbit_user}
+  qbit_pass: {file: ./secrets/qbit_pass}
