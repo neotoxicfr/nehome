@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/neotoxicfr/nehome/internal/config"
+	"github.com/neotoxicfr/nehome/internal/tile"
 )
 
 // hits : faux service qui note « MÉTHODE chemin?requête en-tête corps »
@@ -162,5 +163,55 @@ func TestCustomAPIPostOtherHost(t *testing.T) {
 		Options: map[string]string{"post_url": "http://evil.example:8080/x"}, Secrets: map[string]string{"post_key": "b"}}
 	if _, err := newCustomAPI(tl, secrets(map[string]string{"post_key": "action"})); err == nil {
 		t.Error("post_url vers un autre hôte accepté")
+	}
+}
+
+func TestRestartUsesContainerGrace(t *testing.T) {
+	var mu sync.Mutex
+	var got []string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			io.WriteString(w, `{"Config":{"Image":"x","StopTimeout":120},"State":{"Status":"running"}}`)
+			return
+		}
+		mu.Lock()
+		got = append(got, r.URL.RequestURI())
+		mu.Unlock()
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer srv.Close()
+	if err := newDockerAPI(srv.URL).restart(context.Background(), "qbittorrent"); err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 1 || got[0] != "/containers/qbittorrent/restart" {
+		t.Errorf("requêtes %q : le délai du conteneur (stop_grace_period) doit primer", got)
+	}
+}
+
+// Une WebUI qui ne répond plus n'est plus sollicitée toutes les 2 s.
+func TestQbitBacksOff(t *testing.T) {
+	var mu sync.Mutex
+	n := 0
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		mu.Lock()
+		n++
+		mu.Unlock()
+		w.WriteHeader(http.StatusServiceUnavailable)
+	}))
+	defer srv.Close()
+	SetActive(true)
+	defer SetActive(false)
+	src, err := newQbit(config.Tile{URL: srv.URL}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 7*time.Second)
+	defer cancel()
+	src.Run(ctx, func(tile.Values, error) {})
+	mu.Lock()
+	defer mu.Unlock()
+	// Sans recul : 0, 2, 4, 6 s → 4 requêtes. Avec : 0, 6 s (2 + 4) → 2.
+	if n > 2 {
+		t.Errorf("%d requêtes en 7 s vers une WebUI en panne", n)
 	}
 }

@@ -40,18 +40,24 @@ func (d *dockerAPI) get(ctx context.Context, path string, out any) error {
 	return getJSON(ctx, d.hc, d.base+path, out, nil)
 }
 
-// restart : POST /containers/{nom}/restart?t=10 (10 s d'arrêt propre avant
-// SIGKILL). Seule écriture de l'API : le proxy doit l'autoriser.
+// restart : POST /containers/{nom}/restart. Délai d'arrêt propre avant SIGKILL :
+// celui du conteneur (stop_grace_period) s'il en a un, sinon 60 s — 10 s ne
+// suffisent pas à un client torrent chargé pour écrire ses données de reprise,
+// et un arrêt forcé lui fait revérifier ses fichiers. Seule écriture de l'API :
+// le proxy doit l'autoriser.
 func (d *dockerAPI) restart(ctx context.Context, name string) error {
-	ctx, cancel := context.WithTimeout(ctx, time.Minute)
+	ctx, cancel := context.WithTimeout(ctx, 4*time.Minute)
 	defer cancel()
-	u := d.base + "/containers/" + url.PathEscape(name) + "/restart?t=10"
+	u := d.base + "/containers/" + url.PathEscape(name) + "/restart"
+	if in, err := d.inspect(ctx, name); err != nil || in.Config.StopTimeout == nil {
+		u += "?t=60"
+	}
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, u, nil)
 	if err != nil {
 		return err
 	}
 	hc := *d.hc
-	hc.Timeout = 0 // borné par le contexte : arrêt (10 s) + démarrage
+	hc.Timeout = 0 // borné par le contexte : arrêt propre + démarrage
 	resp, err := hc.Do(req)
 	if err != nil {
 		return cleanErr(err)
@@ -92,8 +98,11 @@ type dkContainer struct {
 
 type dkInspect struct {
 	RestartCount int
-	Config       struct{ Image string }
-	State        struct {
+	Config       struct {
+		Image       string
+		StopTimeout *int
+	}
+	State struct {
 		Status                string
 		Running, Restarting   bool
 		ExitCode              int

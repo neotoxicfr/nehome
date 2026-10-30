@@ -79,7 +79,7 @@ func TestDockerRestart(t *testing.T) {
 	if _, err := d.Do(t.Context(), "restart", "absent"); err == nil || !strings.Contains(err.Error(), "introuvable") {
 		t.Errorf("absent : %v", err)
 	}
-	if want := []string{"/containers/cleanuparr/restart?t=10", "/containers/absent/restart?t=10"}; !slices.Equal(*got, want) {
+	if want := []string{"/containers/cleanuparr/restart?t=60", "/containers/absent/restart?t=60"}; !slices.Equal(*got, want) {
 		t.Errorf("requêtes %v, attendu %v", *got, want)
 	}
 	// Protection par défaut : nehome.
@@ -122,7 +122,7 @@ func TestLinkRestart(t *testing.T) {
 	if msg, err := l.Do(t.Context(), "restart", ""); err != nil || msg != "plex redémarré" {
 		t.Fatalf("restart : %q %v", msg, err)
 	}
-	if !slices.Equal(*got, []string{"/containers/plex/restart?t=10"}) {
+	if !slices.Equal(*got, []string{"/containers/plex/restart?t=60"}) {
 		t.Errorf("requêtes %v", *got)
 	}
 }

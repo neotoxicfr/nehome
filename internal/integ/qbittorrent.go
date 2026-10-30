@@ -105,17 +105,31 @@ func (q *qbit) Fields() []tile.Field {
 	}
 }
 
+// Run : toutes les 2 s (navigateur ouvert). Quand qBittorrent ne répond plus
+// (vérification de fichiers, redémarrage), sa WebUI est bloquée : on espace
+// les requêtes (4 s, 8 s… jusqu'à 2 min) au lieu d'insister toutes les 2 s.
 func (q *qbit) Run(ctx context.Context, emit func(tile.Values, error)) {
+	var backoff time.Duration
 	every(ctx, 2*time.Second, func() {
 		if err := q.sync(ctx); err != nil {
 			if ctx.Err() == nil {
 				emit(nil, err)
 			}
+			backoff = min(max(2*backoff, 4*time.Second), qbMaxBackoff)
+			t := time.NewTimer(backoff)
+			defer t.Stop()
+			select {
+			case <-ctx.Done():
+			case <-t.C:
+			}
 			return
 		}
+		backoff = 0
 		emit(q.values(), nil)
 	})
 }
+
+const qbMaxBackoff = 2 * time.Minute
 
 func (q *qbit) login(ctx context.Context) error {
 	q.loginMu.Lock()
