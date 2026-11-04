@@ -485,7 +485,7 @@ func (s *Server) action(w http.ResponseWriter, r *http.Request) {
 	}
 	arg := r.PostForm.Get("arg")
 	msg, err := s.runAction(r, tileID, act, arg)
-	log.Printf("action %s/%s (%q) par %s : %v %s", tileID, act, arg, s.user(r), err, msg)
+	log.Printf("action %s/%s (%q) par %q : %v %s", tileID, act, arg, s.user(r), err, msg)
 	if r.Header.Get("X-Requested-With") == "fetch" {
 		w.Header().Set("Content-Type", "application/json")
 		if err != nil {
