@@ -43,12 +43,12 @@ imports, SMART temperatures… and lets you decide, field by field, what deserve
 
 ## Integrations
 
-68 types. One page each in [docs/integrations/](docs/integrations/), with options,
+69 types. One page each in [docs/integrations/](docs/integrations/), with options,
 secret roles and the minimum rights to grant.
 
 | Area | Types |
 |---|---|
-| System and OS | `system` (any Linux host, no agent), `docker`, `truenas`, `proxmox`, `synology`, `openmediavault`, `glances`, `netdata`, `portainer`, `scrutiny` |
+| System and OS | `system` (any Linux host, no agent), `docker`, `truenas`, `proxmox`, `synology`, `openmediavault`, `glances`, `netdata`, `portainer`, `scrutiny`, `nut` (UPS) |
 | Network and security | `traefik`, `npm`, `crowdsec`, `authentik`, `adguard`, `pihole`, `opnsense`, `unifi`, `mikrotik`, `gluetun`, `wgeasy`, `cloudflare`, `tcp` |
 | Monitoring | `uptimekuma`, `healthchecks`, `grafana`, `prometheus`, `speedtest`, `ntfy`, `gotify` |
 | Media | `plex`, `jellyfin`, `emby`, `tautulli`, `tracearr`, `seerr` / `overseerr` / `jellyseerr`, `maintainerr`, `wizarr`, `audiobookshelf`, `navidrome`, `immich` |

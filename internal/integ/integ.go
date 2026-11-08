@@ -134,6 +134,7 @@ var registry = map[string]struct {
 	"customapi":      {newCustomAPI, (&customAPI{}).Fields},
 	"prometheus":     {newPrometheus, (&prometheus{}).Fields},
 	"cleanuparr":     {newCleanuparr, (&cleanuparr{}).Fields},
+	"nut":            {newNUT, (&nut{}).Fields},
 	"tcp":            {newTCP, (&tcpCheck{}).Fields},
 }
 

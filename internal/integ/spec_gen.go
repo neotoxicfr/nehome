@@ -39,6 +39,7 @@ var specs = map[string]Spec{
 	"nextcloud":      {Secrets: []string{"pass"}, Options: []string{"skipApps", "user"}, Desc: "Utilisateurs actifs, fichiers, espace libre, mises à jour disponibles, et l'état de PHP, de la base et des caches."},
 	"npm":            {Secrets: []string{"pass", "user"}, Options: nil, Desc: "Hôtes proxy actifs ou désactivés et certificats proches de l'expiration. Relevé toutes les 5 min."},
 	"ntfy":           {Secrets: []string{"pass", "user"}, Options: []string{"topic"}, Desc: "Messages reçus sur un sujet durant les dernières 24 h : nombre, dernier message, messages de priorité haute."},
+	"nut":            {Secrets: nil, Options: []string{"host", "port", "ups"}, Desc: "État d'un onduleur lu directement sur le serveur NUT (`upsd`) : secteur ou batterie, charge et autonomie de la batterie, charge de l'onduleur, tensions."},
 	"nzbget":         {Secrets: []string{"pass", "user"}, Options: nil, Desc: "Suit le client Usenet NZBGet : débit en courbe, file, reste à télécharger, historique, espace libre. Lecture seule (méthodes JSON-RPC `status`, `listgroups`, `history`)."},
 	"openmediavault": {Secrets: []string{"pass", "user"}, Options: nil, Desc: "Processeur, mémoire, charge, uptime, mises à jour disponibles, systèmes de fichiers et santé SMART des disques."},
 	"opnsense":       {Secrets: []string{"key", "secret"}, Options: nil, Desc: "Passerelles (état, latence, perte), mémoire, charge, interfaces, disques et mises à jour du pare-feu."},

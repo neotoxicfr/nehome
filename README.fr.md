@@ -46,12 +46,12 @@ par champ, de ce qui mérite une place sur la tuile.
 
 ## Intégrations
 
-68 types. Une page par type dans [docs/fr/integrations/](docs/fr/integrations/),
+69 types. Une page par type dans [docs/fr/integrations/](docs/fr/integrations/),
 avec les options, les rôles de secrets et les droits minimaux à accorder.
 
 | Domaine | Types |
 |---|---|
-| Système et OS | `system` (tout hôte Linux, sans agent), `docker`, `truenas`, `proxmox`, `synology`, `openmediavault`, `glances`, `netdata`, `portainer`, `scrutiny` |
+| Système et OS | `system` (tout hôte Linux, sans agent), `docker`, `truenas`, `proxmox`, `synology`, `openmediavault`, `glances`, `netdata`, `portainer`, `scrutiny`, `nut` (onduleur) |
 | Réseau et sécurité | `traefik`, `npm`, `crowdsec`, `authentik`, `adguard`, `pihole`, `opnsense`, `unifi`, `mikrotik`, `gluetun`, `wgeasy`, `cloudflare`, `tcp` |
 | Supervision | `uptimekuma`, `healthchecks`, `grafana`, `prometheus`, `speedtest`, `ntfy`, `gotify` |
 | Médias | `plex`, `jellyfin`, `emby`, `tautulli`, `tracearr`, `seerr` / `overseerr` / `jellyseerr`, `maintainerr`, `wizarr`, `audiobookshelf`, `navidrome`, `immich` |

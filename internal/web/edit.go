@@ -92,7 +92,7 @@ var optLabels = map[string]string{
 	"device": "Appareil", "slugs": "Pages de statut", "topic": "Sujet", "user": "Utilisateur", "wan": "Interface WAN",
 	"zone": "Zone", "zone_name": "Domaine", "lat": "Latitude", "lon": "Longitude", "timezone": "Fuseau horaire",
 	"site": "Site", "unifi_os": "UniFi OS", "interval": "Intervalle", "targets": "Cibles", "host": "Hôte", "port": "Port",
-	"disks": "Disques", "entities": "Entités", "method": "Méthode", "key_header": "En-tête de la clé",
+	"disks": "Disques", "ups": "Nom de l'onduleur", "entities": "Entités", "method": "Méthode", "key_header": "En-tête de la clé",
 }
 
 func optLabel(k string) string {
