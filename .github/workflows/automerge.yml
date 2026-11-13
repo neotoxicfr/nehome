@@ -5,7 +5,7 @@ name: automerge
 # they are moved to dev first. Nothing is ever auto-merged into main.
 on:
   pull_request:
-    types: [opened, reopened, ready_for_review]
+    types: [opened, reopened, synchronize, ready_for_review]
     branches: [dev, main]
 
 permissions:
