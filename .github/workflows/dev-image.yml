@@ -1,0 +1,68 @@
+name: dev-image
+
+# Publishes ghcr.io/<owner>/nehome:dev whenever dev moves. Auto-merges are
+# made with GITHUB_TOKEN and trigger no push workflow, so this also runs when
+# a ci run on a pull request completes, waits for the merge, and builds only
+# if :dev is not already at the head of dev.
+on:
+  workflow_run:
+    workflows: [ci]
+    types: [completed]
+  push:
+    branches: [dev]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: dev-image
+  cancel-in-progress: false
+
+jobs:
+  image:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - name: Head of dev not yet published?
+        id: head
+        run: |
+          img="ghcr.io/${GITHUB_REPOSITORY,,}:dev"
+          built=$(docker buildx imagetools inspect "$img" --format '{{json .Image}}' 2>/dev/null \
+            | jq -r '.. | .Labels? // empty | .["org.opencontainers.image.revision"] // empty' | head -1)
+          # After a ci run, give the auto-merge up to 5 min to land on dev.
+          tries=1; [ "$GITHUB_EVENT_NAME" = workflow_run ] && tries=20
+          for i in $(seq "$tries"); do
+            sha=$(git ls-remote "https://github.com/$GITHUB_REPOSITORY" refs/heads/dev | cut -f1)
+            [ "$sha" != "$built" ] && break
+            [ "$i" -lt "$tries" ] && sleep 15
+          done
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "img=$img" >> "$GITHUB_OUTPUT"
+          [ "$sha" != "$built" ] && echo "build=1" >> "$GITHUB_OUTPUT" || echo ":dev already at $sha"
+      - if: steps.head.outputs.build
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ steps.head.outputs.sha }}
+          persist-credentials: false
+      - if: steps.head.outputs.build
+        uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - if: steps.head.outputs.build
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          platforms: linux/amd64
+          push: true
+          build-args: VERSION=dev-${{ steps.head.outputs.sha }}
+          tags: ${{ steps.head.outputs.img }}
+          labels: |
+            org.opencontainers.image.revision=${{ steps.head.outputs.sha }}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
