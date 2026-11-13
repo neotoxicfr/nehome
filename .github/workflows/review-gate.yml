@@ -46,8 +46,8 @@ jobs:
               *) state=pending desc="En attente d'une vraie revue CodeRabbit" ;;
             esac
             gh api -X POST "repos/$REPO/statuses/$sha" -f state="$state" -f context=review -f description="$desc" >/dev/null
-            # Sweep only, once per commit, and only after CodeRabbit gave up on it.
-            if [ "$state" = pending ] && [ -n "$cr" ] && [ "$GITHUB_EVENT_NAME" != check_run ] &&
+            # Sweep only (every 6 h), once per commit.
+            if [ "$state" = pending ] && [ "$GITHUB_EVENT_NAME" != check_run ] && [ "$GITHUB_EVENT_NAME" != pull_request ] &&
                ! gh api "repos/$REPO/issues/$n/comments" --jq '.[].body' | grep -q "review-retry:$sha"; then
               gh pr comment "$n" -R "$REPO" --body "@coderabbitai full review <!-- review-retry:$sha -->"
             fi
