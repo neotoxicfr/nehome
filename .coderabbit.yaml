@@ -16,8 +16,8 @@ reviews:
   auto_review:
     enabled: true
     drafts: false
-    base_branches: [] # default branch (main) only: no development branch
-    ignore_usernames: [] # Dependabot pull requests are reviewed too
+    base_branches: ["dev"] # plus the default branch (main)
+    ignore_usernames: ["dependabot[bot]"] # the CI decides for bot pull requests
   pre_merge_checks:
     docstrings:
       mode: "off" # comments are short and in French; no docstring coverage target
