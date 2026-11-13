@@ -3,8 +3,12 @@ name: review-gate
 # Required status "review" on dev: green only once CodeRabbit really reviewed
 # the head commit (a skipped, rate-limited or failed review stays pending, so
 # auto-merge waits). Every 6 h, a still-unreviewed head is asked for a review
-# again, once per commit.
+# again, once per commit. Dependabot pull requests are not reviewed (CodeRabbit
+# ignores them): the CI alone decides for them.
 on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [dev]
   check_run:
     types: [completed]
   schedule:
@@ -29,8 +33,12 @@ jobs:
       REPO: ${{ github.repository }}
     steps:
       - run: |
-          gh pr list -R "$REPO" --base dev --state open --json number,headRefOid --jq '.[]|"\(.number) \(.headRefOid)"' |
-          while read -r n sha; do
+          gh pr list -R "$REPO" --base dev --state open --json number,headRefOid,author --jq '.[]|"\(.number) \(.headRefOid) \(.author.login)"' |
+          while read -r n sha author; do
+            if [ "$author" = "app/dependabot" ]; then
+              gh api -X POST "repos/$REPO/statuses/$sha" -f state=success -f context=review -f description="Montée Dependabot : la CI décide" >/dev/null
+              continue
+            fi
             cr=$(gh api "repos/$REPO/commits/$sha/check-runs?app_id=347564" \
               --jq '[.check_runs[]|select(.status=="completed")]|sort_by(.completed_at)|last|select(.)|.conclusion+" "+.output.summary')
             case "$cr" in
@@ -38,8 +46,8 @@ jobs:
               *) state=pending desc="En attente d'une vraie revue CodeRabbit" ;;
             esac
             gh api -X POST "repos/$REPO/statuses/$sha" -f state="$state" -f context=review -f description="$desc" >/dev/null
-            # Sweep only, once per commit, and only after CodeRabbit gave up on it.
-            if [ "$state" = pending ] && [ -n "$cr" ] && [ "$GITHUB_EVENT_NAME" != check_run ] &&
+            # Sweep only (every 6 h), once per commit.
+            if [ "$state" = pending ] && [ "$GITHUB_EVENT_NAME" != check_run ] && [ "$GITHUB_EVENT_NAME" != pull_request ] &&
                ! gh api "repos/$REPO/issues/$n/comments" --jq '.[].body' | grep -q "review-retry:$sha"; then
               gh pr comment "$n" -R "$REPO" --body "@coderabbitai full review <!-- review-retry:$sha -->"
             fi
