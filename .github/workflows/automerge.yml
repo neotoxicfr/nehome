@@ -1,6 +1,7 @@
 name: automerge
 
-# Everything that passes the required checks (CodeRabbit's review included)
+# Everything that passes the required checks (including "review": a real
+# CodeRabbit review of the head commit, see review-gate.yml)
 # merges into dev on its own (Dependabot and the maintainer). Dependabot security updates target main:
 # they are moved to dev first. Nothing is ever auto-merged into main.
 on:
