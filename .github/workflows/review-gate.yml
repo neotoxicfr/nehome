@@ -2,23 +2,20 @@ name: review-gate
 
 # Required status "review" on dev: green only once CodeRabbit really reviewed
 # the head commit (a skipped, rate-limited or failed review stays pending, so
-# auto-merge waits). Every 6 h, a still-unreviewed head is asked for a review
-# again, once per commit. Dependabot pull requests are not reviewed (CodeRabbit
-# ignores them): the CI alone decides for them.
+# auto-merge waits; the maintainer asks "@coderabbitai full review" again).
+# Dependabot pull requests are not reviewed (CodeRabbit ignores them): the CI
+# alone decides for them.
 on:
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [dev]
   check_run:
     types: [completed]
-  schedule:
-    - cron: "23 */6 * * *"
   workflow_dispatch:
 
 permissions:
   contents: read
   statuses: write
-  pull-requests: write
 
 concurrency:
   group: review-gate
@@ -33,9 +30,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      # CodeRabbit ignores commands posted by bots: the retry comment needs a
-      # person's token (fine-grained, this repository, Pull requests: write).
-      RETRY_TOKEN: ${{ secrets.REVIEW_RETRY_TOKEN }}
       REPO: ${{ github.repository }}
     steps:
       - run: |
@@ -52,9 +46,4 @@ jobs:
               *) state=pending desc="En attente d'une vraie revue CodeRabbit" ;;
             esac
             gh api -X POST "repos/$REPO/statuses/$sha" -f state="$state" -f context=review -f description="$desc" >/dev/null
-            # Sweep only (every 6 h), once per commit, and only with a person's token.
-            if [ "$state" = pending ] && [ -n "$RETRY_TOKEN" ] && [ "$GITHUB_EVENT_NAME" != check_run ] && [ "$GITHUB_EVENT_NAME" != pull_request ] &&
-               ! gh api "repos/$REPO/issues/$n/comments" --jq '.[].body' | grep -q "review-retry:$sha"; then
-              GH_TOKEN="$RETRY_TOKEN" gh pr comment "$n" -R "$REPO" --body "@coderabbitai full review <!-- review-retry:$sha -->"
-            fi
           done
