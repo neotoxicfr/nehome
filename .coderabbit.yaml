@@ -43,7 +43,7 @@ reviews:
         Règles dures du projet (dépôt public) :
         - Aucune donnée d'installation réelle : pas d'IP privée ou publique réelle, de nom d'hôte, de domaine, d'e-mail, de clé, de nom de tracker ni d'empreinte de torrent. Exemples : example.org, 192.0.2.0/24, 203.0.113.0/24, user@example.com, valeurs « factice ».
         - Aucun secret dans le code, les tests, la doc ou un message de log ou d'erreur.
-        - Interface en français (assumé, ne pas proposer de traduire l'interface). Commentaires du code en français.
+        - Interface en français (assumé, ne pas proposer de traduire l'interface). Commentaires du code Go en français ; ceux de .github/ et des fichiers de configuration peuvent rester en anglais.
     - path: "internal/integ/**"
       instructions: |
         Une intégration = un fichier <type>.go enregistré dans le registre de integ.go (Fields + Run, Actions/Do en option).

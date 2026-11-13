@@ -2,11 +2,11 @@ name: dev-image
 
 # Publishes ghcr.io/<owner>/nehome:dev whenever dev moves. Auto-merges are
 # made with GITHUB_TOKEN and trigger no push workflow, so this also runs when
-# a ci run on a pull request completes, waits for the merge, and builds only
-# if :dev is not already at the head of dev.
+# a pull request's ci or review gate completes, waits for dev to move (the
+# merge), and builds only if :dev is not already at the head of dev.
 on:
   workflow_run:
-    workflows: [ci]
+    workflows: [ci, review-gate]
     types: [completed]
   push:
     branches: [dev]
@@ -24,7 +24,7 @@ jobs:
   image:
     if: >-
       github.event_name != 'workflow_run' ||
-      (github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success')
+      github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
@@ -34,13 +34,13 @@ jobs:
           img="ghcr.io/${GITHUB_REPOSITORY,,}:dev"
           built=$(docker buildx imagetools inspect "$img" --format '{{json .Image}}' 2>/dev/null \
             | jq -r '.. | .Labels? // empty | .["org.opencontainers.image.revision"] // empty' | head -1)
-          # After a ci run, give the auto-merge up to 5 min to land on dev.
-          tries=1; [ "$GITHUB_EVENT_NAME" = workflow_run ] && tries=20
-          for i in $(seq "$tries"); do
-            sha=$(git ls-remote "https://github.com/$GITHUB_REPOSITORY" refs/heads/dev | cut -f1)
-            [ "$sha" != "$built" ] && break
-            [ "$i" -lt "$tries" ] && sleep 15
-          done
+          devhead() { git ls-remote "https://github.com/$GITHUB_REPOSITORY" refs/heads/dev | cut -f1; }
+          sha=$(devhead)
+          # After a ci or review-gate run, wait up to 5 min for the merge to move dev.
+          if [ "$GITHUB_EVENT_NAME" = workflow_run ]; then
+            start=$sha
+            for i in $(seq 20); do sha=$(devhead); [ "$sha" != "$start" ] && break; sleep 15; done
+          fi
           echo "sha=$sha" >> "$GITHUB_OUTPUT"
           echo "img=$img" >> "$GITHUB_OUTPUT"
           [ "$sha" != "$built" ] && echo "build=1" >> "$GITHUB_OUTPUT" || echo ":dev already at $sha"
