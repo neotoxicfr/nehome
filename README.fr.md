@@ -9,7 +9,7 @@ le navigateur, sans que vos clés ne quittent jamais le serveur.
 
 [English](README.md) · [Configuration](docs/fr/configuration.md) · [Intégrations](docs/fr/integrations/) · [Architecture](docs/fr/architecture.md)
 
-[![ci](https://github.com/neotoxicfr/nehome/actions/workflows/ci.yml/badge.svg)](https://github.com/neotoxicfr/nehome/actions/workflows/ci.yml)
+[![ci](https://github.com/neotoxicfr/nehome/actions/workflows/ci.yml/badge.svg?event=pull_request)](https://github.com/neotoxicfr/nehome/actions/workflows/ci.yml)
 
 ![Tableau de bord nehome](docs/images/dashboard.png)
 

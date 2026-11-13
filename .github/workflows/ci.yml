@@ -1,12 +1,10 @@
 name: ci
 
 # Required checks on dev (ruleset): test, govulncheck, trivy, gitleaks.
-# Pull requests only, plus main for the badge: no push + pull_request double run on dev.
+# Pull requests only: main moves only by release pull requests, already checked.
 on:
   pull_request:
     branches: [dev, main]
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
