@@ -10,6 +10,8 @@ reviews:
   high_level_summary: true
   collapse_walkthrough: true
   poem: false
+  commit_status: true # "CodeRabbit" status, required on dev: auto-merge waits for the review
+  fail_commit_status: false
   in_progress_fortune: false
   suggested_reviewers: false # single maintainer
   auto_assign_reviewers: false
@@ -17,7 +19,7 @@ reviews:
     enabled: true
     drafts: false
     base_branches: ["dev"] # plus the default branch (main)
-    ignore_usernames: ["dependabot[bot]"] # the CI decides for bot pull requests
+    ignore_usernames: [] # every pull request is reviewed, Dependabot included
   pre_merge_checks:
     docstrings:
       mode: "off" # comments are short and in French; no docstring coverage target

@@ -9,7 +9,7 @@ with your keys never leaving the server.
 
 [Français](README.fr.md) · [Configuration](docs/configuration.md) · [Integrations](docs/integrations/) · [Architecture](docs/architecture.md)
 
-[![ci](https://github.com/neotoxicfr/nehome/actions/workflows/ci.yml/badge.svg)](https://github.com/neotoxicfr/nehome/actions/workflows/ci.yml)
+[![ci](https://github.com/neotoxicfr/nehome/actions/workflows/ci.yml/badge.svg?event=pull_request)](https://github.com/neotoxicfr/nehome/actions/workflows/ci.yml)
 
 ![nehome dashboard](docs/images/dashboard.png)
 

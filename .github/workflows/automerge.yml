@@ -1,7 +1,7 @@
 name: automerge
 
-# Everything that passes the required checks merges into dev on its own
-# (Dependabot and the maintainer). Dependabot security updates target main:
+# Everything that passes the required checks (CodeRabbit's review included)
+# merges into dev on its own (Dependabot and the maintainer). Dependabot security updates target main:
 # they are moved to dev first. Nothing is ever auto-merged into main.
 on:
   pull_request:
@@ -25,4 +25,7 @@ jobs:
     steps:
       - if: github.base_ref == 'main'
         run: gh pr edit "$PR" --base dev
-      - run: gh pr merge "$PR" --auto --squash
+      # main -> dev keeps main's commits (merge commit): dev is never behind main.
+      - run: gh pr merge "$PR" --auto $([ "$HEAD" = main ] && echo --merge || echo --squash)
+        env:
+          HEAD: ${{ github.head_ref }}

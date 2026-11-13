@@ -3,6 +3,8 @@ updates:
   - package-ecosystem: "gomod"
     directory: "/"
     target-branch: "dev"
+    cooldown: # no delay at all: the default 3-day cooldown is lifted for every dependency
+      exclude: ["*"]
     schedule:
       interval: "daily"
     open-pull-requests-limit: 5
@@ -16,6 +18,8 @@ updates:
   - package-ecosystem: "docker"
     directory: "/"
     target-branch: "dev"
+    cooldown: # no delay at all: the default 3-day cooldown is lifted for every dependency
+      exclude: ["*"]
     schedule:
       interval: "daily"
     groups:
@@ -27,6 +31,8 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     target-branch: "dev"
+    cooldown: # no delay at all: the default 3-day cooldown is lifted for every dependency
+      exclude: ["*"]
     schedule:
       interval: "daily"
     groups:
