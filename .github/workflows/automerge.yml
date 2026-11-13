@@ -1,0 +1,28 @@
+name: automerge
+
+# Everything that passes the required checks merges into dev on its own
+# (Dependabot and the maintainer). Dependabot security updates target main:
+# they are moved to dev first. Nothing is ever auto-merged into main.
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review]
+    branches: [dev, main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  automerge:
+    if: >-
+      !github.event.pull_request.draft &&
+      (github.event.pull_request.user.login == 'dependabot[bot]' ||
+       (github.event.pull_request.user.login == github.repository_owner && github.base_ref == 'dev'))
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PR: ${{ github.event.pull_request.html_url }}
+    steps:
+      - if: github.base_ref == 'main'
+        run: gh pr edit "$PR" --base dev
+      - run: gh pr merge "$PR" --auto --squash
