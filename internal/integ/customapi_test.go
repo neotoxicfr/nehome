@@ -176,3 +176,16 @@ func TestCustomAPIErrors(t *testing.T) {
 		t.Error("valeur zéro : nil attendu")
 	}
 }
+
+// scale convertit avant format et seuils : un débit en bit/s affiché en octets/s.
+func TestCustomAPIScale(t *testing.T) {
+	sc, warn := 0.125, 2e6
+	f := config.FieldMap{ID: "down", Path: "rate", Format: "rate", Scale: &sc, Warn: &warn}
+	v := genValue(f, float64(18_800_000))
+	if want := tile.Rate(2_350_000); v.Text != want || v.Level != "warn" {
+		t.Errorf("valeur %+v, attendu %q en warn", v, want)
+	}
+	if v := genValue(config.FieldMap{ID: "n", Path: "n", Format: "number"}, float64(8)); v.Text != genNum(8) {
+		t.Errorf("sans scale : %+v", v)
+	}
+}

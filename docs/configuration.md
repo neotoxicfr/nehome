@@ -87,6 +87,7 @@ For types that read an arbitrary JSON response, each `fields` entry describes on
 | `path` | dotted path: `data.items.0.count`; `data.items.#` gives an array's length |
 | `format` | `text` (default), `number`, `bytes`, `rate`, `percent`, `duration`, `date` |
 | `placement` | `tile` (default) or `detail` |
+| `scale` | multiplies a numeric value before thresholds and format, e.g. `0.125` for bit/s → bytes/s |
 | `warn`, `crit` | optional thresholds: beyond them, the value turns to warning or critical |
 
 ```yaml

@@ -38,7 +38,7 @@ Une tuile pour n'importe quelle API qui répond en JSON : vous déclarez les cha
 | `duration` | secondes → « 1 j 2 h » |
 | `date` | RFC 3339 ou époque Unix (s, ms, µs, ns reconnus) → « 27/10/2026 08:00 », « il y a 3 h » |
 
-Les nombres en chaîne (`"91.2"`) sont acceptés. `warn`/`crit` colorent la valeur (≥ seuil) ; `warn` supérieur à `crit` inverse le sens (plus bas = pire, ex. espace libre). Pour `date`, les seuils portent sur l'âge en secondes. `placement` : `tile` (défaut), `detail` ou `hidden`.
+Les nombres en chaîne (`"91.2"`) sont acceptés. `warn`/`crit` colorent la valeur (≥ seuil) ; `warn` supérieur à `crit` inverse le sens (plus bas = pire, ex. espace libre). Pour `date`, les seuils portent sur l'âge en secondes. `placement` : `tile` (défaut), `detail` ou `hidden`. `scale` multiplie une valeur numérique avant seuils et format (par exemple `0.125` convertit des bit/s en octets/s, l'unité de `rate`).
 
 ## Secrets (tous facultatifs)
 

@@ -409,6 +409,9 @@ func genValue(f config.FieldMap, x any) tile.Value {
 		return genDate(f, x)
 	}
 	n, isNum := genFloat(x)
+	if isNum && f.Scale != nil {
+		n *= *f.Scale
+	}
 	if isNum && (math.IsNaN(n) || math.IsInf(n, 0)) {
 		if format == "text" {
 			return tile.Value{Text: genText(x)}

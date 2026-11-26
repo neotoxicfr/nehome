@@ -85,6 +85,7 @@ Pour les types qui lisent une réponse JSON quelconque, chaque entrée de `field
 | `path` | chemin pointé : `data.items.0.count` ; `data.items.#` donne la longueur d'un tableau |
 | `format` | `text` (défaut), `number`, `bytes`, `rate`, `percent`, `duration`, `date` |
 | `placement` | `tile` (défaut) ou `detail` |
+| `scale` | multiplie une valeur numérique avant seuils et format, par exemple `0.125` pour bit/s → octets/s |
 | `warn`, `crit` | seuils facultatifs : au-delà, la valeur passe en avertissement ou en critique |
 
 ```yaml
