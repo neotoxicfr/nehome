@@ -382,14 +382,13 @@ func genLevel(f config.FieldMap, n float64) string {
 	if f.Warn == nil && f.Crit == nil {
 		return ""
 	}
-	w, c := math.Inf(1), math.Inf(1)
+	c := math.Inf(1)
 	if f.Crit != nil {
 		c = *f.Crit
 	}
+	w := c
 	if f.Warn != nil {
 		w = *f.Warn
-	} else {
-		w = c
 	}
 	if f.Warn != nil && f.Crit != nil && w > c {
 		return tile.Level(-n, -w, -c)
