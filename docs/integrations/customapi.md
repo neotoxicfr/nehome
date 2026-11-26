@@ -42,7 +42,7 @@ A tile for any API that answers in JSON: you declare the fields to read and thei
 | `duration` | seconds -> « 1 j 2 h » (1 d 2 h) |
 | `date` | RFC 3339 or Unix epoch (s, ms, µs, ns recognized) -> « 27/10/2026 08:00 », « il y a 3 h » (3 h ago) |
 
-Numbers in strings (`"91.2"`) are accepted. `warn`/`crit` color the value (>= threshold); a `warn` greater than `crit` reverses the direction (lower = worse, e.g. free space). For `date`, thresholds apply to the age in seconds. `placement`: `tile` (default), `detail` or `hidden`.
+Numbers in strings (`"91.2"`) are accepted. `warn`/`crit` color the value (>= threshold); a `warn` greater than `crit` reverses the direction (lower = worse, e.g. free space). For `date`, thresholds apply to the age in seconds. `placement`: `tile` (default), `detail` or `hidden`. `scale` multiplies a numeric value before thresholds and format (for example `0.125` turns bit/s into the bytes/s that `rate` expects).
 
 ## Secrets (all optional)
 

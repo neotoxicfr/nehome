@@ -56,6 +56,7 @@ type FieldMap struct {
 	Placement string   `yaml:"placement,omitempty"` // tile (défaut) ou detail
 	Warn      *float64 `yaml:"warn,omitempty"`      // seuils facultatifs (nombres)
 	Crit      *float64 `yaml:"crit,omitempty"`
+	Scale     *float64 `yaml:"scale,omitempty"` // multiplie la valeur lue (bits → octets : 0.125), avant seuils et format
 }
 
 var idRe = regexp.MustCompile(`^[a-z0-9-]+$`)
