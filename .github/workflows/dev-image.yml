@@ -55,7 +55,7 @@ jobs:
         with:
           # Built straight from dev's head commit (git context): nothing is checked out here.
           context: ${{ github.server_url }}/${{ github.repository }}.git#${{ steps.head.outputs.sha }}
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64 # arm64: the Pi fallback stack
           push: true
           build-args: VERSION=dev-${{ steps.head.outputs.sha }}
           tags: ${{ steps.head.outputs.img }}
