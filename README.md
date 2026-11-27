@@ -49,7 +49,7 @@ secret roles and the minimum rights to grant.
 | Area | Types |
 |---|---|
 | System and OS | `system` (any Linux host, no agent), `docker`, `truenas`, `proxmox`, `synology`, `openmediavault`, `glances`, `netdata`, `portainer`, `scrutiny`, `nut` (UPS) |
-| Network and security | `traefik`, `npm`, `crowdsec`, `authentik`, `adguard`, `pihole`, `opnsense`, `unifi`, `mikrotik`, `gluetun`, `wgeasy`, `cloudflare`, `tcp` |
+| Network and security | `traefik`, `npm`, `crowdsec`, `authentik`, `adguard`, `pihole`, `opnsense`, `unifi`, `mikrotik`, `gluetun`, `wgeasy`, `cloudflare`, `tcp`, `portique`, `neofreebox` |
 | Monitoring | `uptimekuma`, `healthchecks`, `grafana`, `prometheus`, `speedtest`, `ntfy`, `gotify` |
 | Media | `plex`, `jellyfin`, `emby`, `tautulli`, `tracearr`, `seerr` / `overseerr` / `jellyseerr`, `maintainerr`, `wizarr`, `audiobookshelf`, `navidrome`, `immich` |
 | Downloads | `sonarr`, `radarr`, `lidarr`, `readarr`, `prowlarr`, `bazarr`, `jackett`, `crossseed`, `cleanuparr`, `qbittorrent`, `transmission`, `deluge`, `sabnzbd`, `nzbget`, `jdownloader` |

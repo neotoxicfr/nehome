@@ -136,6 +136,8 @@ var registry = map[string]struct {
 	"cleanuparr":     {newCleanuparr, (&cleanuparr{}).Fields},
 	"nut":            {newNUT, (&nut{}).Fields},
 	"tcp":            {newTCP, (&tcpCheck{}).Fields},
+	"portique":       {newPortique, (&portique{}).Fields},
+	"neofreebox":     {newNeofreebox, (&neofreebox{}).Fields},
 }
 
 // New construit la source d'une tuile. Si elle ne peut pas démarrer (type
