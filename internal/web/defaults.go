@@ -51,6 +51,8 @@ var defaults = map[string]typeDefault{
 	"gluetun":        {Cat: "net", Title: "VPN", Host: "gluetun", Port: 8000},
 	"wgeasy":         {Cat: "net", Title: "WireGuard", Host: "wg-easy", Port: 51821},
 	"cloudflare":     {Cat: "net", Title: "Cloudflare"},
+	"neofreebox":     {Cat: "net", Title: "Freebox", Host: "neofreebox", Port: 8080},
+	"portique":       {Cat: "net", Title: "Portique", Host: "portique", Port: 8090},
 	"nut":            {Cat: "sys", Title: "Onduleur", Options: map[string]string{"port": "3493", "ups": "ups"}},
 	"tcp":            {Cat: "net", Title: "Ports"},
 	"uptimekuma":     {Cat: "mon", Title: "Uptime Kuma", Host: "uptime-kuma", Port: 3001},

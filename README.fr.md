@@ -52,7 +52,7 @@ avec les options, les rôles de secrets et les droits minimaux à accorder.
 | Domaine | Types |
 |---|---|
 | Système et OS | `system` (tout hôte Linux, sans agent), `docker`, `truenas`, `proxmox`, `synology`, `openmediavault`, `glances`, `netdata`, `portainer`, `scrutiny`, `nut` (onduleur) |
-| Réseau et sécurité | `traefik`, `npm`, `crowdsec`, `authentik`, `adguard`, `pihole`, `opnsense`, `unifi`, `mikrotik`, `gluetun`, `wgeasy`, `cloudflare`, `tcp` |
+| Réseau et sécurité | `traefik`, `npm`, `crowdsec`, `authentik`, `adguard`, `pihole`, `opnsense`, `unifi`, `mikrotik`, `gluetun`, `wgeasy`, `cloudflare`, `tcp`, `portique`, `neofreebox` |
 | Supervision | `uptimekuma`, `healthchecks`, `grafana`, `prometheus`, `speedtest`, `ntfy`, `gotify` |
 | Médias | `plex`, `jellyfin`, `emby`, `tautulli`, `tracearr`, `seerr` / `overseerr` / `jellyseerr`, `maintainerr`, `wizarr`, `audiobookshelf`, `navidrome`, `immich` |
 | Téléchargement | `sonarr`, `radarr`, `lidarr`, `readarr`, `prowlarr`, `bazarr`, `jackett`, `crossseed`, `cleanuparr`, `qbittorrent`, `transmission`, `deluge`, `sabnzbd`, `nzbget`, `jdownloader` |
