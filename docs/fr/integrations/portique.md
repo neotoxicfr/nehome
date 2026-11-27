@@ -6,12 +6,13 @@ Machines de la passerelle [Portique](https://github.com/neotoxicfr/portique) (RD
 
 - Secret `token` : clé de lecture de Portique (`status_key`), envoyée en `Authorization: Bearer`.
 - Secret `wake` (facultatif) : clé de réveil (`wake_key`). Sans elle, aucun bouton de réveil.
-- `url` : adresse de Portique, sans chemin. Options : aucune.
+- `url` : adresse de Portique, sans chemin. `href` : son adresse publique ; elle sert aussi aux liens vers les sessions (`<href>/session/<id>`, `<href>/ssh/<id>`). Options : aucune.
 
 ```yaml
 - id: portique
   type: portique
   title: Portique
+  href: https://portique.example.com/
   url: http://portique:8090
   secrets: {token: portique_key, wake: portique_wake_key}
 ```
@@ -22,11 +23,11 @@ Machines de la passerelle [Portique](https://github.com/neotoxicfr/portique) (RD
 |---|---|---|
 | online | machines en ligne sur le total, et combien sont en panne (hors ligne sans réveil possible) | tuile |
 | sessions | bureaux (RDP) et terminaux (SSH) ouverts | tuile |
-| machines | une ligne par machine : état, accès, sessions | tuile |
+| machines | une ligne par machine : état, liens « ouvrir » vers le bureau (RDP) et le terminal (SSH) dans Portique, sessions | tuile |
 
 ## Actions
 
-- « Réveiller une machine » : au choix parmi les machines qui ont une adresse MAC de réveil. Portique refuse un second réveil trop rapproché.
+- « Réveiller <machine> » : un bouton par machine qui a une adresse MAC de réveil, affiché sur la tuile. Portique refuse un second réveil trop rapproché.
 
 ## Limites
 

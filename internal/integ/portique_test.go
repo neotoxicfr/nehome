@@ -27,7 +27,7 @@ func TestPortique(t *testing.T) {
 	}))
 	defer srv.Close()
 	keys := map[string]string{"token": "lecture", "wake": "reveil"}
-	src, err := newPortique(config.Tile{URL: srv.URL, Secrets: map[string]string{"token": "a", "wake": "b"}}, func(r string) (string, error) { return keys[r], nil })
+	src, err := newPortique(config.Tile{URL: srv.URL, Href: "https://portique.example/", Secrets: map[string]string{"token": "a", "wake": "b"}}, func(r string) (string, error) { return keys[r], nil })
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -40,24 +40,24 @@ func TestPortique(t *testing.T) {
 		t.Fatalf("résumé : %+v", v)
 	}
 	rows := v["machines"].Rows
-	if rows[1][1].Text != "Par rebond" || rows[2][1].Text != "Éteinte" || rows[3][1].Level != "crit" || rows[1][3].Text != "—" || rows[2][2].Text != "RDP · SSH · réveil" || rows[0][3].Text != "2 terminaux" {
+	if rows[1][1].Text != "Par rebond" || rows[2][1].Text != "Éteinte" || rows[3][1].Level != "crit" || rows[1][4].Text != "—" || rows[2][2].Href != "https://portique.example/session/1" || rows[2][3].Href != "https://portique.example/ssh/1" || rows[0][2].Text != "—" || rows[0][4].Text != "2 terminaux" {
 		t.Fatalf("lignes : %+v", rows)
 	}
 	a := p.Actions()
-	if len(a) != 1 || len(a[0].Choices) != 1 || a[0].Choices[0] != "PC" {
+	if len(a) != 1 || a[0].ID != "wake-1" || a[0].Label != "Réveiller PC" || a[0].Default != "tile" {
 		t.Fatalf("actions : %+v", a)
 	}
-	if _, err := p.Do(t.Context(), "wake", "Routeur"); err == nil {
+	if _, err := p.Do(t.Context(), "wake-10003", ""); err == nil {
 		t.Fatal("machine non réveillable acceptée")
 	}
-	if _, err := p.Do(t.Context(), "wake", "PC"); err != nil || woken != "/api/machine/wake/1" {
+	if _, err := p.Do(t.Context(), "wake-1", ""); err != nil || woken != "/api/machine/wake/1" {
 		t.Fatalf("réveil : %v %q", err, woken)
 	}
 
 	// sans clé de réveil : aucun bouton
 	src, _ = newPortique(config.Tile{URL: srv.URL}, func(string) (string, error) { return "lecture", nil })
 	p = src.(*portique)
-	if _, err := p.poll(t.Context()); err != nil || p.Actions() != nil {
+	if v, err := p.poll(t.Context()); err != nil || len(p.Actions()) != 0 || v["machines"].Rows[2][2].Text != "oui" {
 		t.Fatalf("sans wake : %v %+v", err, p.Actions())
 	}
 }

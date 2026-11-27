@@ -3,7 +3,7 @@
 > Version française : [../fr/integrations/neofreebox.md](../fr/integrations/neofreebox.md)
 
 
-Freebox seen through [neofreebox](https://github.com/neotoxicfr/neofreebox): connection state, rates as sparklines against the line maximum, connected devices, temperature, Wi-Fi, missed calls, sensors. Polled every 10 s.
+Freebox seen through [neofreebox](https://github.com/neotoxicfr/neofreebox): connection state, rates as sparklines, line maximum, connected devices, temperature, Wi-Fi, missed calls, sensors. Polled every 10 s.
 
 ## Configuration
 
@@ -23,12 +23,13 @@ Freebox seen through [neofreebox](https://github.com/neotoxicfr/neofreebox): con
 | Field | Label | Placement |
 |---|---|---|
 | state | connection up or down, and its medium (FTTH, xDSL…) | tile |
-| down | download rate sparkline, against the line maximum | tile |
-| up | upload rate sparkline, against the line maximum | tile |
+| down | download rate, sparkline | tile |
+| up | upload rate, sparkline | tile |
 | devices | connected devices, out of all devices the box knows | tile |
 | temp | highest temperature (orange from 80 °C, red from 90 °C) | tile |
-| wifi | Wi-Fi on or off | tile |
-| calls | unread missed calls | tile |
+| wifi | Wi-Fi on or off | detail |
+| calls | unread missed calls | detail |
+| line | line maximum, download and upload | detail |
 | uptime | time since the box last started | detail |
 | box | model and firmware | detail |
 | sensors | every temperature and fan | detail |
