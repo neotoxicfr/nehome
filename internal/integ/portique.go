@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -14,19 +13,26 @@ import (
 	"github.com/neotoxicfr/nehome/internal/tile"
 )
 
-// Portique (passerelle RDP/SSH). GET /api/machine/status avec la clé de
+// Portique (passerelle RDP/SSH). Avec href, chaque machine a ses liens vers
+// une session dans Portique (<href>/session/<id>, <href>/ssh/<id>). GET /api/machine/status avec la clé de
 // lecture (rôle token) : nom, accès, joignable ou non, sessions ouvertes ;
 // ni adresse, ni MAC, ni compte. Le rôle wake (facultatif) active le bouton
 // de réveil : POST /api/machine/wake/<id>. Relevé toutes les 30 s.
 type portique struct {
 	url, token, wake string
+	web              string // adresse publique (href) : liens vers les sessions
 	hc               *http.Client
 	mu               sync.Mutex
-	wakeable         map[string]int // nom -> id, machines réveillables
+	wakeable         []wakeTarget
+}
+
+type wakeTarget struct {
+	id   int
+	name string
 }
 
 func newPortique(t config.Tile, secret func(string) (string, error)) (tile.Source, error) {
-	p := &portique{url: strings.TrimRight(t.URL, "/") + "/api/machine", hc: httpClient(t.InsecureTLS, false)}
+	p := &portique{url: strings.TrimRight(t.URL, "/") + "/api/machine", web: strings.TrimRight(t.Href, "/"), hc: httpClient(t.InsecureTLS, false)}
 	var err error
 	if p.token, err = secret("token"); err != nil {
 		return nil, err
@@ -72,7 +78,7 @@ func (p *portique) poll(ctx context.Context) (tile.Values, error) {
 	if err := getJSON(ctx, p.hc, p.url+"/status", &s, func(r *http.Request) { r.Header.Set("Authorization", "Bearer "+p.token) }); err != nil {
 		return nil, err
 	}
-	wakeable := map[string]int{}
+	var wakeable []wakeTarget
 	var rows [][]tile.Cell
 	down := 0
 	for _, m := range s.Machines {
@@ -87,24 +93,14 @@ func (p *portique) poll(ctx context.Context) (tile.Values, error) {
 			state = tile.Cell{Text: "Hors ligne", Level: "crit"}
 			down++
 		}
-		var access []string
-		if m.RDP {
-			access = append(access, "RDP")
-		}
-		if m.SSH {
-			access = append(access, "SSH")
-		}
-		if m.CanWake {
-			access = append(access, "réveil")
-			if p.wake != "" {
-				wakeable[m.Name] = m.ID
-			}
+		if m.CanWake && p.wake != "" {
+			wakeable = append(wakeable, wakeTarget{m.ID, m.Name})
 		}
 		open := sessionsText(m.Sessions.RDP, m.Sessions.SSH)
 		if open == "aucune" {
 			open = "—"
 		}
-		rows = append(rows, []tile.Cell{{Text: m.Name}, state, {Text: strings.Join(access, " · ")}, {Text: open}})
+		rows = append(rows, []tile.Cell{{Text: m.Name}, state, p.link(m.RDP, "/session/", m.ID), p.link(m.SSH, "/ssh/", m.ID), {Text: open}})
 	}
 	p.mu.Lock()
 	p.wakeable = wakeable
@@ -116,7 +112,7 @@ func (p *portique) poll(ctx context.Context) (tile.Values, error) {
 	return tile.Values{
 		"online":   online,
 		"sessions": {Text: sessionsText(s.Sessions.RDP, s.Sessions.SSH)},
-		"machines": {Head: []string{"Machine", "État", "Accès", "Sessions"}, Rows: rows},
+		"machines": {Head: []string{"Machine", "État", "Bureau", "Terminal", "Sessions"}, Rows: rows},
 	}, nil
 }
 
@@ -142,28 +138,42 @@ func plural(n int, one, many string) string {
 	return fmt.Sprintf("%d %s", n, one)
 }
 
+// link : « ouvrir » vers la session dans Portique, « — » si l'accès n'existe pas.
+func (p *portique) link(ok bool, path string, id int) tile.Cell {
+	switch {
+	case !ok:
+		return tile.Cell{Text: "—"}
+	case p.web == "":
+		return tile.Cell{Text: "oui"}
+	}
+	return tile.Cell{Text: "ouvrir", Href: fmt.Sprintf("%s%s%d", p.web, path, id)}
+}
+
+// Actions : un bouton de réveil par machine réveillable, sur la tuile.
 func (p *portique) Actions() []tile.Action {
 	p.mu.Lock()
 	defer p.mu.Unlock()
-	if len(p.wakeable) == 0 {
-		return nil
+	acts := make([]tile.Action, 0, len(p.wakeable))
+	for _, w := range p.wakeable {
+		acts = append(acts, tile.Action{ID: fmt.Sprintf("wake-%d", w.id), Label: "Réveiller " + w.name, Default: tile.OnTile})
 	}
-	names := make([]string, 0, len(p.wakeable))
-	for n := range p.wakeable {
-		names = append(names, n)
-	}
-	slices.Sort(names)
-	return []tile.Action{{ID: "wake", Label: "Réveiller une machine", Choices: names}}
+	return acts
 }
 
-func (p *portique) Do(ctx context.Context, id, arg string) (string, error) {
+func (p *portique) Do(ctx context.Context, id, _ string) (string, error) {
 	p.mu.Lock()
-	mid, ok := p.wakeable[arg]
+	var target *wakeTarget
+	for _, w := range p.wakeable {
+		if fmt.Sprintf("wake-%d", w.id) == id {
+			target = &w
+			break
+		}
+	}
 	p.mu.Unlock()
-	if id != "wake" || !ok {
+	if target == nil {
 		return "", errUnknownAction
 	}
-	err := callAction(ctx, p.hc, http.MethodPost, fmt.Sprintf("%s/wake/%d", p.url, mid), nil, func(r *http.Request) {
+	err := callAction(ctx, p.hc, http.MethodPost, fmt.Sprintf("%s/wake/%d", p.url, target.id), nil, func(r *http.Request) {
 		r.Header.Set("Authorization", "Bearer "+p.wake)
 	})
 	var se statusError
@@ -173,5 +183,5 @@ func (p *portique) Do(ctx context.Context, id, arg string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return arg + " : réveil envoyé", nil
+	return target.name + " : réveil envoyé", nil
 }

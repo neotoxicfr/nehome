@@ -1,6 +1,6 @@
 # neofreebox
 
-Freebox vue à travers [neofreebox](https://github.com/neotoxicfr/neofreebox) : état de la connexion, débits en courbe face au débit maximal, appareils connectés, température, Wi-Fi, appels manqués, capteurs. Relevé toutes les 10 s.
+Freebox vue à travers [neofreebox](https://github.com/neotoxicfr/neofreebox) : état de la connexion, débits en courbe, débit maximal de la ligne, appareils connectés, température, Wi-Fi, appels manqués, capteurs. Relevé toutes les 10 s.
 
 ## Configuration
 
@@ -20,12 +20,13 @@ Freebox vue à travers [neofreebox](https://github.com/neotoxicfr/neofreebox) : 
 | Champ | Libellé | Placement |
 |---|---|---|
 | state | connexion établie ou coupée, et son support (FTTH, xDSL…) | tuile |
-| down | débit reçu en courbe, sur le débit maximal de la ligne | tuile |
-| up | débit envoyé en courbe, sur le débit maximal de la ligne | tuile |
+| down | débit reçu, en courbe | tuile |
+| up | débit envoyé, en courbe | tuile |
 | devices | appareils connectés, sur le total connu de la box | tuile |
 | temp | température la plus haute (orange dès 80 °C, rouge dès 90 °C) | tuile |
-| wifi | Wi-Fi activé ou coupé | tuile |
-| calls | appels manqués non lus | tuile |
+| wifi | Wi-Fi activé ou coupé | détail |
+| calls | appels manqués non lus | détail |
+| line | débit maximal de la ligne, reçu et envoyé | détail |
 | uptime | durée depuis le dernier démarrage de la box | détail |
 | box | modèle et micrologiciel | détail |
 | sensors | chaque température et chaque ventilateur | détail |

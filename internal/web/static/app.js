@@ -42,7 +42,7 @@ function openDetail(id) {
 if (dlg) {
   document.addEventListener("click", (e) => {
     const t = e.target.closest(".tile");
-    if (!t || e.target.closest("a.name, .acts")) return; // le titre ouvre le service, les actions agissent
+    if (!t || e.target.closest("a[href], .acts")) return; // les liens ouvrent leur page, les actions agissent
     e.preventDefault();
     openDetail(t.dataset.id);
   });

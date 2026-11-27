@@ -32,7 +32,7 @@
     {{else}}{{$rows := $f.Rows}}{{if $compact}}{{$rows = limit 4 $f.Rows}}{{end}}
     <div class="tbl"><table>
       {{if $f.Head}}<thead><tr>{{range $f.Head}}<th>{{.}}</th>{{end}}</tr></thead>{{end}}
-      <tbody>{{range $i, $r := $rows}}<tr{{if and (not $compact) (ge $i 8)}} class="extra"{{end}}>{{range $r}}<td{{if .Level}} class="lvl-{{.Level}}"{{end}}>{{.Text}}</td>{{end}}</tr>{{end}}</tbody>
+      <tbody>{{range $i, $r := $rows}}<tr{{if and (not $compact) (ge $i 8)}} class="extra"{{end}}>{{range $r}}<td{{if .Level}} class="lvl-{{.Level}}"{{end}}>{{if .Href}}<a href="{{.Href}}" target="_blank" rel="noopener">{{.Text}}</a>{{else}}{{.Text}}{{end}}</td>{{end}}</tr>{{end}}</tbody>
     </table></div>
     {{if $compact}}{{with more 4 $f.Rows}}<small class="muted">+ {{.}} de plus</small>{{end}}
     {{else}}{{with more 8 $f.Rows}}<input type="checkbox" class="more-t" id="m-{{$.TileID}}-{{$f.ID}}"><label class="more-l" for="m-{{$.TileID}}-{{$f.ID}}"><span>Afficher les {{.}} autres</span><span>Réduire</span></label>{{end}}{{end}}
