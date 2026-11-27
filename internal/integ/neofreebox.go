@@ -38,8 +38,9 @@ func (n *neofreebox) Fields() []tile.Field {
 		tile.F("up", "Envoi", tile.Spark, tile.OnTile),
 		tile.F("devices", "Appareils connectés", tile.Stat, tile.OnTile),
 		tile.F("temp", "Température", tile.Stat, tile.OnTile),
-		tile.F("wifi", "Wi-Fi", tile.Stat, tile.OnTile),
-		tile.F("calls", "Appels manqués", tile.Stat, tile.OnTile),
+		tile.F("wifi", "Wi-Fi", tile.Stat, tile.InDetail),
+		tile.F("calls", "Appels manqués", tile.Stat, tile.InDetail),
+		tile.F("line", "Débit maximal", tile.Stat, tile.InDetail),
 		tile.F("uptime", "Allumée depuis", tile.Stat, tile.InDetail),
 		tile.F("box", "Box", tile.Stat, tile.InDetail),
 		tile.F("sensors", "Capteurs", tile.Table, tile.InDetail),
@@ -89,8 +90,9 @@ func (n *neofreebox) poll(ctx context.Context) (tile.Values, error) {
 	}
 	v := tile.Values{
 		"state":  state,
-		"down":   {Text: bitRate(c.RateDown), Sub: "sur " + bitRate(c.BandwidthDown), Points: n.down.Push(c.RateDown)},
-		"up":     {Text: bitRate(c.RateUp), Sub: "sur " + bitRate(c.BandwidthUp), Points: n.up.Push(c.RateUp)},
+		"down":   {Text: bitRate(c.RateDown), Points: n.down.Push(c.RateDown)},
+		"up":     {Text: bitRate(c.RateUp), Points: n.up.Push(c.RateUp)},
+		"line":   {Text: bitRate(c.BandwidthDown) + " ↓ · " + bitRate(c.BandwidthUp) + " ↑"},
 		"uptime": {Text: tile.Dur(time.Duration(s.Box.Uptime) * time.Second)},
 		"box":    {Text: s.Box.Model, Sub: "micrologiciel " + s.Box.Firmware},
 	}

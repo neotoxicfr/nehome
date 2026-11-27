@@ -9,12 +9,13 @@ Machines of the [Portique](https://github.com/neotoxicfr/portique) gateway (RDP 
 
 - `token` secret: Portique read key (`status_key`), sent as `Authorization: Bearer`.
 - `wake` secret (optional): wake key (`wake_key`). Without it, no wake button.
-- `url`: Portique address, no path. Options: none.
+- `url`: Portique address, no path. `href`: its public address; also used for the session links (`<href>/session/<id>`, `<href>/ssh/<id>`). Options: none.
 
 ```yaml
 - id: portique
   type: portique
   title: Portique
+  href: https://portique.example.com/
   url: http://portique:8090
   secrets: {token: portique_key, wake: portique_wake_key}
 ```
@@ -25,11 +26,11 @@ Machines of the [Portique](https://github.com/neotoxicfr/portique) gateway (RDP 
 |---|---|---|
 | online | machines online out of the total, and how many are down (offline and not wakeable) | tile |
 | sessions | open desktops (RDP) and terminals (SSH) | tile |
-| machines | one row per machine: state, access, sessions | tile |
+| machines | one row per machine: state, "ouvrir" links to the desktop (RDP) and terminal (SSH) in Portique, sessions | tile |
 
 ## Actions
 
-- "Wake a machine": pick among machines that have a wake MAC address. Portique refuses a second wake too soon after the first.
+- "Réveiller <machine>": one button per machine that has a wake MAC address, shown on the tile. Portique refuses a second wake too soon after the first.
 
 ## Limits
 

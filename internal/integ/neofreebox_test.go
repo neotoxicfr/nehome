@@ -21,7 +21,7 @@ func TestNeofreebox(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if v["state"].Text != "Connectée" || v["state"].Sub != "FTTH" || v["down"].Text != "12,5 Mb/s" || v["down"].Sub != "sur 8 Gb/s" || v["up"].Text != "800 kb/s" {
+	if v["state"].Text != "Connectée" || v["state"].Sub != "FTTH" || v["down"].Text != "12,5 Mb/s" || v["line"].Text != "8 Gb/s ↓ · 700 Mb/s ↑" || v["up"].Text != "800 kb/s" {
 		t.Fatalf("connexion : %+v", v)
 	}
 	if v["temp"].Text != "84 °C" || v["temp"].Level != "warn" || v["devices"].Text != "12" || v["wifi"].Level != "warn" || v["calls"].Text != "2" || v["uptime"].Text != "1 j 1 h" {

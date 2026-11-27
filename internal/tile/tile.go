@@ -50,6 +50,7 @@ type Bar struct {
 
 type Cell struct {
 	Text, Level string
+	Href        string // facultatif : la cellule devient un lien (nouvel onglet)
 }
 
 type Values map[string]Value
