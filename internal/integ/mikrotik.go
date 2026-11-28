@@ -82,6 +82,9 @@ func (m *mikrotik) Run(ctx context.Context, emit func(tile.Values, error)) {
 	})
 	every(ctx, time.Minute, func() {
 		v, err := m.slow(ctx)
+		if err != nil && ctx.Err() == nil { // un délai isolé (tunnel lointain) ne vaut pas une minute d'erreur
+			v, err = m.slow(ctx)
+		}
 		if ctx.Err() == nil {
 			e[1](v, err)
 		}
